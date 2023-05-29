@@ -14,31 +14,27 @@ class Application:
         self.ui: ApplicationUI = ApplicationUI(title)
 
         self.ui.editor_tab_elements_buttons["start"].clicked.connect(
-            self.add_start_item
+            lambda: self.add_item(EllipseItem)
         )
-        self.ui.editor_tab_elements_buttons["io"].clicked.connect(self.add_io_item)
+        self.ui.editor_tab_elements_buttons["io"].clicked.connect(
+            lambda: self.add_item(IOItem)
+        )
         self.ui.editor_tab_elements_buttons["action"].clicked.connect(
-            self.add_action_item
+            lambda: self.add_item(ActionItem)
         )
         self.ui.editor_tab_elements_buttons["condition"].clicked.connect(
-            self.add_condition_item
+            lambda: self.add_item(ConditionItem)
         )
-        self.ui.editor_tab_elements_buttons["end"].clicked.connect(self.add_end_item)
+        self.ui.editor_tab_elements_buttons["end"].clicked.connect(
+            lambda: self.add_item(EllipseItem)
+        )
 
-    def add_start_item(self):
-        self.ui.scene.addItem(EllipseItem(QRectF(*settings.DELAULT_RECT)))
-
-    def add_io_item(self):
-        self.ui.scene.addItem(IOItem(QRectF(*settings.DELAULT_RECT)))
-
-    def add_action_item(self):
-        self.ui.scene.addItem(ActionItem(QRectF(*settings.DELAULT_RECT)))
-
-    def add_condition_item(self):
-        self.ui.scene.addItem(ConditionItem(QRectF(*settings.DELAULT_RECT)))
-
-    def add_end_item(self):
-        self.ui.scene.addItem(EllipseItem(QRectF(*settings.DELAULT_RECT)))
+    def add_item(self, Item):
+        item = Item(QRectF(*settings.DELAULT_RECT))
+        self.ui.scene.addItem(item)
+        for selected_item in self.ui.scene.selectedItems():
+            selected_item.setSelected(False)
+        item.setSelected(True)
 
     def execute(self):
         self.ui.show()
