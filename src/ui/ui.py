@@ -10,6 +10,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import QPointF
 from ui.widgets.scene import GridScene
+from ui.widgets.view import SceneView
 
 
 class ApplicationUI(QMainWindow):
@@ -36,8 +37,8 @@ class ApplicationUI(QMainWindow):
 
         self.scene = GridScene()
         self.scene.setSceneRect(-200, -200, 200, 200)
-        self.view = QGraphicsView(self.scene, self.editor_tab_widget)
-        self.view.centerOn(QPointF(0, 0))
+        self.view = SceneView(self.scene, self.editor_tab_widget)
+        #self.view.centerOn(QPointF(0, 0))
         self.view.scale(1, 1)
 
         self.editor_tab_elements_widget = QGroupBox(self.editor_tab_widget)
