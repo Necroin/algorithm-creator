@@ -52,6 +52,7 @@ class ApplicationUI(QMainWindow):
             "action": QPushButton(self.editor_tab_elements_widget),
             "condition": QPushButton(self.editor_tab_elements_widget),
             "end": QPushButton(self.editor_tab_elements_widget),
+            "line": QPushButton(self.editor_tab_elements_widget),
         }
 
         # self.elements_buttons["rect"].setMaximumSize(100,100)
