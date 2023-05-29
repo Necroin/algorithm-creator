@@ -3,14 +3,14 @@ from PyQt6.QtWidgets import (
     QWidget,
     QHBoxLayout,
     QGroupBox,
-    QGraphicsScene,
     QGraphicsView,
     QPushButton,
     QVBoxLayout,
     QTabWidget,
 )
-
+from PyQt6.QtCore import QPointF
 from ui.widgets.scene import GridScene
+
 
 class ApplicationUI(QMainWindow):
     def __init__(self, title):
@@ -35,7 +35,10 @@ class ApplicationUI(QMainWindow):
         self.editor_tab_widget.setLayout(self.editor_tab_layout)
 
         self.scene = GridScene()
+        self.scene.setSceneRect(-200, -200, 200, 200)
         self.view = QGraphicsView(self.scene, self.editor_tab_widget)
+        self.view.centerOn(QPointF(0, 0))
+        self.view.scale(1, 1)
 
         self.editor_tab_elements_widget = QGroupBox(self.editor_tab_widget)
         self.editor_tab_elements_layout = QVBoxLayout(self.editor_tab_elements_widget)

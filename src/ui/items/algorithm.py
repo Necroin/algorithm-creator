@@ -1,3 +1,4 @@
+from PyQt6 import QtCore
 import settings
 from PyQt6.QtWidgets import (
     QGraphicsItem,
@@ -59,6 +60,7 @@ class AlgorithmItem(QGraphicsRectItem):
         super().__init__(rectangle)
         super().setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable, True)
         super().setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable, True)
+        super().setFlag(QGraphicsItem.GraphicsItemFlag.ItemSendsGeometryChanges, True)
         super().setAcceptHoverEvents(True)
         self.__shift_mouse_coords = QPointF(0, 0)
         self.text_item = TextItem(self)
@@ -305,6 +307,28 @@ class AlgorithmItem(QGraphicsRectItem):
             )
         )
 
+    def boundingRect(self) -> QRectF:
+        bounding_rect = super().boundingRect()
+        bounding_rect_x = bounding_rect.x()
+        bounding_rect_y = bounding_rect.y()
+        bounding_rect_width = bounding_rect.width()
+        bounding_rect_height = bounding_rect.height()
+        bounding_rect_x = (
+            round(bounding_rect_x / settings.GRID_STEP) * settings.GRID_STEP
+        )
+        bounding_rect_y = (
+            round(bounding_rect_y / settings.GRID_STEP) * settings.GRID_STEP
+        )
+        bounding_rect_width = (
+            round(bounding_rect_width / settings.GRID_STEP) * settings.GRID_STEP
+        )
+        bounding_rect_height = (
+            round(bounding_rect_height / settings.GRID_STEP) * settings.GRID_STEP
+        )
+        return QRectF(
+            bounding_rect_x, bounding_rect_y, bounding_rect_width, bounding_rect_height
+        )
+
     def itemChange(
         self, change: QGraphicsItem.GraphicsItemChange, value: QVariant
     ) -> QVariant:
@@ -316,6 +340,13 @@ class AlgorithmItem(QGraphicsRectItem):
                 for resize_point in self.resize_points:
                     if not resize_point.isSelected():
                         resize_point.hide()
+
+        if change == change.ItemPositionChange:
+            delta: QPointF = value
+            delta_x = round(delta.x() / settings.GRID_STEP) * settings.GRID_STEP
+            delta_y = round(delta.y() / settings.GRID_STEP) * settings.GRID_STEP
+            return QPointF(delta_x, delta_y)
+
         return super().itemChange(change, value)
 
     def mousePressEvent(self, event: QGraphicsSceneMouseEvent) -> None:
@@ -325,7 +356,7 @@ class AlgorithmItem(QGraphicsRectItem):
 
     def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent) -> None:
         if event.button() == event.buttons().LeftButton:
-            super().setPos(super().mapToScene(event.pos() + self.__shift_mouse_coords))
+            self.setPos(event.pos() + super().mapToScene(self.__shift_mouse_coords))
         return super().mouseMoveEvent(event)
 
     def mouseDoubleClickEvent(self, event: QGraphicsSceneMouseEvent) -> None:
@@ -348,7 +379,7 @@ class AlgorithmItem(QGraphicsRectItem):
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         if self.isSelected():
             painter.setPen(Qt.GlobalColor.blue)
-            painter.drawRect(self.rect())
+            painter.drawRect(self.boundingRect())
         widget.update()
         painter.restore()
 
@@ -363,7 +394,7 @@ class ActionItem(AlgorithmItem):
         painter.save()
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         painter.setBrush(self.white_brush)
-        painter.drawRect(self.rect())
+        painter.drawRect(self.boundingRect())
         widget.update()
         painter.restore()
         return super().paint(painter, option, widget)
@@ -379,12 +410,12 @@ class ConditionItem(AlgorithmItem):
         painter.save()
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         painter.setBrush(self.white_brush)
-        rectangle = self.rect()
+        rectangle = self.boundingRect()
         painter.drawConvexPolygon(
-            QPointF(rectangle.x() + rectangle.width() / 2 - 1, rectangle.y()),
-            QPointF(rectangle.right(), rectangle.y() + rectangle.height() / 2 - 1),
-            QPointF(rectangle.x() + rectangle.width() / 2 - 1, rectangle.bottom()),
-            QPointF(rectangle.x(), rectangle.y() + rectangle.height() / 2 - 1),
+            QPointF(rectangle.x() + rectangle.width() / 2, rectangle.y()),
+            QPointF(rectangle.right(), rectangle.y() + rectangle.height() / 2),
+            QPointF(rectangle.x() + rectangle.width() / 2, rectangle.bottom()),
+            QPointF(rectangle.x(), rectangle.y() + rectangle.height() / 2),
         )
         widget.update()
         painter.restore()
@@ -401,7 +432,7 @@ class EllipseItem(AlgorithmItem):
         painter.save()
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         painter.setBrush(self.white_brush)
-        rectangle = self.rect()
+        rectangle = self.boundingRect()
         painter.drawEllipse(rectangle)
         widget.update()
         painter.restore()
@@ -418,14 +449,14 @@ class IOItem(AlgorithmItem):
         painter.save()
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         painter.setBrush(self.white_brush)
-        rectangle = self.rect()
+        rectangle = self.boundingRect()
         painter.drawConvexPolygon(
             QPointF(rectangle.x() + settings.DELAULT_RECT_OFFSET, rectangle.y()),
             QPointF(rectangle.right(), rectangle.y()),
             QPointF(
                 rectangle.right() - settings.DELAULT_RECT_OFFSET, rectangle.bottom()
             ),
-            QPointF(rectangle.x(), rectangle.bottom())
+            QPointF(rectangle.x(), rectangle.bottom()),
         )
         widget.update()
         painter.restore()
